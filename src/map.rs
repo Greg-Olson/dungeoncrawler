@@ -27,6 +27,14 @@ impl Map {
     }
     // END: inbounds
 
+    pub fn try_idx(&self, point : Point) -> Option<usize> {
+        if !self.in_bounds(point) {
+            None
+        } else {
+            Some(map_idx(point.x, point.y))
+        }
+    }
+
     // START: can_enter
     pub fn can_enter_tile(&self, point : Point) -> bool {
         self.in_bounds(point) 
