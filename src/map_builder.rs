@@ -5,6 +5,7 @@ pub struct MapBuilder {
     pub map: Map,
     pub rooms: Vec<Rect>,
     pub player_start: Point,
+    pub amulet_start : Point,
 }
 impl MapBuilder {
     fn fill(&mut self, tile: TileType) {
@@ -77,6 +78,7 @@ impl MapBuilder {
             map : Map::new(),
             rooms : Vec::new(),
             player_start : Point::zero(),
+            amulet_start : Point::zero(),
         };
         mb.fill(TileType::Wall);
         mb.build_random_rooms(rng);
