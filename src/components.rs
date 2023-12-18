@@ -35,3 +35,5 @@ pub struct WantsToAttack {
     pub attacker : Entity,
     pub target : Entity
 }
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ChasingPlayer;

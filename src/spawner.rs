@@ -9,7 +9,7 @@ pub fn spawn_player(ecs : &mut World, pos : Point) {
                 color: ColorPair::new(WHITE, BLACK),
                 glyph : to_cp437('@')
             },
-            Health{ current: 20, max: 20 }
+            Health{ current: 10, max: 10 }
         )
     );
 }
@@ -19,7 +19,7 @@ pub fn spawn_monster(
     rng: &mut RandomNumberGenerator, 
     pos : Point
 ) {
-    let (hp, name, glyph) = match rng.roll_dice(1,10) { 
+    let (hp, name, glyph) = match rng.roll_dice(1,10) {
         1..=8 => goblin(),
         _ => orc()
     };
@@ -31,7 +31,7 @@ pub fn spawn_monster(
                 color: ColorPair::new(WHITE, BLACK),
                 glyph,
             },
-            MovingRandomly{},
+            ChasingPlayer{},
             Health{current: hp, max: hp},
             Name(name)
         )
