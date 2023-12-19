@@ -58,7 +58,7 @@ pub fn chasing(
             commands
               .push(((), WantsToAttack{ 
                 attacker: *entity,
-                target: *target
+                victim: *target
               }));
           }
           attacked = true;

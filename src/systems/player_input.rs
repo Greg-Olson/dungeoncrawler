@@ -50,7 +50,7 @@ pub fn player_input(
                     commands
                         .push(((), WantsToAttack{
                             attacker: player_entity,
-                            target: *entity,
+                            victim: *entity,
                         }));
                 });
 
