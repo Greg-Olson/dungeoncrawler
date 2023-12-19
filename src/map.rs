@@ -2,18 +2,21 @@ use crate::prelude::*;
 
 const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 
+//START: add_stairs
 #[derive(Copy, Clone, PartialEq)]
 pub enum TileType {
     Wall,
     Floor,
-    Exit,
+    
+    Exit
+    
 }
+//END: add_stairs
 
 pub fn map_idx(x: i32, y: i32) -> usize {
     ((y * SCREEN_WIDTH) + x) as usize
 }
 
-//START: revealed
 pub struct Map {
     pub tiles: Vec<TileType>,
     pub revealed_tiles: Vec<bool>
@@ -26,7 +29,6 @@ impl Map {
             revealed_tiles: vec![false; NUM_TILES]
         }
     }
-    //END: revealed
 
     pub fn in_bounds(&self, point : Point) -> bool {
         point.x >= 0 && point.x < SCREEN_WIDTH && point.y >= 0 && point.y < SCREEN_HEIGHT
@@ -40,9 +42,14 @@ impl Map {
         }
     }
 
+    //START: can_enter_tile
     pub fn can_enter_tile(&self, point : Point) -> bool {
-        self.in_bounds(point) && self.tiles[map_idx(point.x, point.y)]==TileType::Floor
+        self.in_bounds(point) && (
+            self.tiles[map_idx(point.x, point.y)]==TileType::Floor ||
+            self.tiles[map_idx(point.x, point.y)]==TileType::Exit
+        )
     }
+    //END: can_enter_tile
 
     fn valid_exit(&self, loc: Point, delta: Point) -> Option<usize> {
         let destination = loc + delta;
@@ -69,12 +76,10 @@ impl Algorithm2D for Map {
     }
 }
 
-//START: is_opaque
 impl BaseMap for Map {
     fn is_opaque(&self, idx: usize) -> bool {
         self.tiles[idx as usize] != TileType::Floor
     }
-    //END: is_opaque
 
     fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
         let mut exits = SmallVec::new();

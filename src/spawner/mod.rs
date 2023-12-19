@@ -2,6 +2,7 @@ use crate::prelude::*;
 mod template;
 use template::Templates;
 
+//START: player
 pub fn spawn_player(ecs : &mut World, pos : Point) {
     ecs.push(
         (Player{map_level: 0},
@@ -11,10 +12,14 @@ pub fn spawn_player(ecs : &mut World, pos : Point) {
                 glyph : to_cp437('@')
             },
             Health{ current: 10, max: 10 },
-            FieldOfView::new(8)
+            FieldOfView::new(8),
+       
+            Damage(1)
+     
         )
     );
 }
+//END: player
 
 //START: spawn
 pub fn spawn_level(
