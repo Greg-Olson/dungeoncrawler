@@ -6,6 +6,7 @@ const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
 pub enum TileType {
     Wall,
     Floor,
+    Exit,
 }
 
 pub fn map_idx(x: i32, y: i32) -> usize {

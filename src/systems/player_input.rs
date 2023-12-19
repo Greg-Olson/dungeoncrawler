@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-//START: health_query
+//START: header
 #[system]
 #[read_component(Point)]
 #[read_component(Player)]
@@ -10,12 +10,12 @@ use crate::prelude::*;
 #[read_component(Carried)]
 
 pub fn player_input(
+    //END: header
     ecs: &mut SubWorld,
     commands: &mut CommandBuffer,
     #[resource] key: &Option<VirtualKeyCode>,
     #[resource] turn_state: &mut TurnState,
 ) {
-    //END: health_query
     let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
     let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
 
@@ -26,22 +26,23 @@ pub fn player_input(
             VirtualKeyCode::Up => Point::new(0, -1),
             VirtualKeyCode::Down => Point::new(0, 1),
             //START: get
-            VirtualKeyCode::G => {// <callout id="co.inventory.match_g" />
-                let (player, player_pos) = players// <callout id="co.inventory.players_destructure" />
+            VirtualKeyCode::G => {
+                // <callout id="co.inventory.match_g" />
+                let (player, player_pos) = players // <callout id="co.inventory.players_destructure" />
                     .iter(ecs)
-                    .find_map(|(entity, pos)| Some((*entity, *pos)))// <callout id="co.inventory.player_find_map" />
+                    .find_map(|(entity, pos)| Some((*entity, *pos))) // <callout id="co.inventory.player_find_map" />
                     .unwrap();
 
-                let mut items = <(Entity, &Item, &Point)>::query();// <callout id="co.inventory.item_query" />
-                items.iter(ecs)
-                    .filter(|(_entity, _item, &item_pos)| item_pos == player_pos)// <callout id="co.inventory.item_filter" />
+                let mut items = <(Entity, &Item, &Point)>::query(); // <callout id="co.inventory.item_query" />
+                items
+                    .iter(ecs)
+                    .filter(|(_entity, _item, &item_pos)| item_pos == player_pos) // <callout id="co.inventory.item_filter" />
                     .for_each(|(entity, _item, _item_pos)| {
-                        commands.remove_component::<Point>(*entity);// <callout id="co.inventory.no_point" />
-                        commands.add_component(*entity, Carried(player));// <callout id="co.inventory.add_carry" />
-                    }
-                );
+                        commands.remove_component::<Point>(*entity); // <callout id="co.inventory.no_point" />
+                        commands.add_component(*entity, Carried(player)); // <callout id="co.inventory.add_carry" />
+                    });
                 Point::new(0, 0)
-            },
+            }
             //END: get
             //START: numbers
             VirtualKeyCode::Key1 => use_item(0, ecs, commands),
@@ -62,20 +63,15 @@ pub fn player_input(
             .find_map(|(entity, pos)| Some((*entity, *pos + delta)))
             .unwrap();
 
-        //START: did_something
         let mut did_something = false;
         if delta.x != 0 || delta.y != 0 {
-            //END: did_something
-
             let mut hit_something = false;
             enemies
                 .iter(ecs)
                 .filter(|(_, pos)| **pos == destination)
-                //START: did_combat
                 .for_each(|(entity, _)| {
                     hit_something = true;
-                    did_something = true;
-                    //END: did_combat
+                    // did_something = true;
 
                     commands.push((
                         (),
@@ -86,45 +82,48 @@ pub fn player_input(
                     ));
                 });
 
-            //START: did_move
             if !hit_something {
                 did_something = true;
-                commands
-                    //END: did_move
-                    .push((
-                        (),
-                        WantsToMove {
-                            entity: player_entity,
-                            destination,
-                        },
-                    ));
+                commands.push((
+                    (),
+                    WantsToMove {
+                        entity: player_entity,
+                        destination,
+                    },
+                ));
             }
         };
-        
+        *turn_state = TurnState::PlayerTurn;
     }
 }
 
-fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) 
--> Point {
+//START: use_item
+fn use_item(n: usize, ecs: &mut SubWorld, commands: &mut CommandBuffer) -> Point {
+    // <callout id="co.inventory.use_item_fn" />
     let player_entity = <(Entity, &Player)>::query()
-                    .iter(ecs)
-                    .find_map(|(entity, _player)| Some(*entity))
-                    .unwrap();
+        .iter(ecs)
+        .find_map(|(entity, _player)| Some(*entity))
+        .unwrap(); // <callout id="co.inventory.find_the_player" />
 
-    let item_entity = <(Entity, &Item, &Carried)>::query()
+    let item_entity = <(Entity, &Item, &Carried)>::query() // <callout id="co.inventory.item_numbering" />
         .iter(ecs)
         .filter(|(_, _, carried)| carried.0 == player_entity)
-        .enumerate()
-        .filter(|(item_count, (_, _, _))| *item_count == n)
-        .find_map(|(_, (item_entity, _, _))| Some(*item_entity));
+        .enumerate() // <callout id="co.inventory.enumerate_carried" />
+        .filter(|(item_count, (_, _, _))| *item_count == n) // <callout id="co.inventory.enum_filter" />
+        .find_map(|(_, (item_entity, _, _))| Some(*item_entity)); // <callout id="co.inventory.enum_fm" />
 
     if let Some(item_entity) = item_entity {
-        commands
-            .push(((), ActivateItem{
+        // <callout id="co.inventory.if_let_pickup" />
+        commands.push((
+            (),
+            ActivateItem {
+                // <callout id="co.inventory.create_activate" />
                 used_by: player_entity,
-                item: item_entity
-            }));
+                item: item_entity,
+            },
+        ));
     }
 
     Point::zero()
 }
+//END: use_item

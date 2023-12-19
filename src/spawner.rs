@@ -1,10 +1,12 @@
 use crate::prelude::*;
 
-pub fn spawn_player(ecs : &mut World, pos : Point) { 
+//START: spawn_player
+pub fn spawn_player(ecs : &mut World, pos : Point) {
     ecs.push(
-        (
-            Player,
-            pos, 
+       
+        (Player{map_level: 0},
+   
+            pos,
             Render{
                 color: ColorPair::new(WHITE, BLACK),
                 glyph : to_cp437('@')
@@ -13,6 +15,20 @@ pub fn spawn_player(ecs : &mut World, pos : Point) {
             FieldOfView::new(8)
         )
     );
+}
+//END: spawn_player
+
+pub fn spawn_entity(
+    ecs: &mut World,
+    rng: &mut RandomNumberGenerator,
+    pos: Point
+) {
+    let roll = rng.roll_dice(1, 6);
+    match roll {
+        1 => spawn_healing_potion(ecs, pos),
+        2 => spawn_magic_mapper(ecs, pos),
+        _ => spawn_monster(ecs, rng, pos)
+    }
 }
 
 pub fn spawn_monster(
@@ -38,7 +54,6 @@ pub fn spawn_monster(
             FieldOfView::new(6)
         )
     );
-    
 }
 
 fn goblin() -> (i32, String, FontCharType) {
@@ -48,6 +63,7 @@ fn goblin() -> (i32, String, FontCharType) {
 fn orc() -> (i32, String, FontCharType) {
     (2, "Orc".to_string(), to_cp437('o'))
 }
+
 pub fn spawn_amulet_of_yala(ecs : &mut World, pos : Point) {
     ecs.push(
         (Item, AmuletOfYala,
@@ -60,6 +76,8 @@ pub fn spawn_amulet_of_yala(ecs : &mut World, pos : Point) {
         )
     );
 }
+
+//START: spawn_items
 pub fn spawn_healing_potion(ecs: &mut World, pos: Point) {
     ecs.push(
         (Item,
@@ -87,15 +105,4 @@ pub fn spawn_magic_mapper(ecs: &mut World, pos: Point) {
         )
     );
 }
-pub fn spawn_entity(
-    ecs: &mut World,
-    rng: &mut RandomNumberGenerator,
-    pos: Point
-) {
-    let roll = rng.roll_dice(1, 6);
-    match roll {
-        1 => spawn_healing_potion(ecs, pos),
-        2 => spawn_magic_mapper(ecs, pos),
-        _ => spawn_monster(ecs, rng, pos)
-    }
-}
+//END: spawn_items
